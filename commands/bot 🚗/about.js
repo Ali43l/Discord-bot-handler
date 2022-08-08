@@ -10,7 +10,7 @@ module.exports = {
 	guildOnly: true,
 	// ownerOnly: true,
 	cooldown: 3,
-	execute(client, message, args)  {
+	execute(client, message, args) {
 		let messageArry = message.content.split(" ")
 		let cmd = messageArry[0]; 
 		const about = new Discord.MessageEmbed()
