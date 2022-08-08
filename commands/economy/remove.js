@@ -20,7 +20,6 @@ module.exports = {
     let amount = Number(args[1]);
     var x;
     if (!amount || amount == 0) return message.channel.send(`enter amount`);
-    else if (amount > 0) x = "-";
     else if (amount < 0) return;
 
 
@@ -46,7 +45,7 @@ module.exports = {
         },
         {
           name: `${config.emojis.coin} amount:`,
-          value: `\`${x}${amount}\``,
+          value: `\`${amount}\``,
           inline: true,
         },
         { name: "\u200B", value: "\u200B", inline: true },

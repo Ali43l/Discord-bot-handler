@@ -9,7 +9,7 @@ module.exports = {
 //   args: true,
   usage: "<amount>",
   guildOnly: true,
-  // ownerOnly: true,
+  ownerOnly: true,
   cooldown: 3,
   execute: async (client, message, args) => {
     const money = db.table("money");
