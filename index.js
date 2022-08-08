@@ -2,8 +2,6 @@ require("dotenv").config();
 const fs = require("fs");
 const Discord = require("discord.js");
 const config = require("./config.json");
-const { QuickDB } = require("quick.db");
-const db = new QuickDB();
 //
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
@@ -59,28 +57,28 @@ client.on("message", (message) => {
   if (command.ownerOnly && !(message.author.id == config.ownerId)) {
     return message.reply("this a only owner command");
   }
-
+  //guildOnly
   if (command.guildOnly && message.channel.type === "dm") {
     return message.reply("I can't execute that command inside DMs!");
   }
-
+  //permissions
   if (command.permissions) {
     const authorPerms = message.channel.permissionsFor(message.author);
     if (!authorPerms || !authorPerms.has(command.permissions)) {
       return message.reply("You can not do this!");
     }
   }
-
+  //args
   if (command.args && !args.length) {
     let reply = `You didn't provide any arguments, ${message.author}!`;
-
+    //usage
     if (command.usage) {
       reply += `\nThe proper usage would be: \`${config.prefix}${command.name} ${command.usage}\``;
     }
 
     return message.channel.send(reply);
   }
-
+//cooldowns
   const { cooldowns } = client;
 
   if (!cooldowns.has(command.name)) {
