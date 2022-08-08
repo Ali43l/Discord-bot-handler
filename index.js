@@ -2,7 +2,9 @@ require("dotenv").config();
 const fs = require("fs");
 const Discord = require("discord.js");
 const config = require("./config.json");
-
+const { QuickDB } = require('quick.db');
+const db = new QuickDB();
+//
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
 client.cooldowns = new Discord.Collection();
@@ -41,81 +43,72 @@ client.once("ready", () => {
 });
 
 client.on("message", (message) => {
-  if (!message.content.startsWith(config.prefix) || message.author.bot) return;
+    // //owner only
+    // if (command.ownerOnly && !(message.author.id == config.ownerId)) {
+    //   return message.reply("this a only owner command");
+    // }
 
-  const args = message.content.slice(config.prefix.length).trim().split(/ +/);
-  const commandName = args.shift().toLowerCase();
+  	if (!message.content.startsWith(config.prefix) || message.author.bot) return;
 
-  const command =
-    client.commands.get(commandName) ||
-    client.commands.find(
-      (cmd) => cmd.aliases && cmd.aliases.includes(commandName)
-    );
+	const args = message.content.slice(config.prefix.length).trim().split(/ +/);
+	const commandName = args.shift().toLowerCase();
 
-  if (!command) return;
+	const command = client.commands.get(commandName)
+		|| client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
 
-  //owner only
-  if (command.ownerOnly && !(message.author.id == config.ownerId)) {
-    return message.reply("this a only owner command");
-  }
-  //guildOnly
-  if (command.guildOnly && message.channel.type === "dm") {
-    return message.reply("I can't execute that command inside DMs!");
-  }
-  //permissions
-  if (command.permissions) {
-    const authorPerms = message.channel.permissionsFor(message.author);
-    if (!authorPerms || !authorPerms.has(command.permissions)) {
-      return message.reply("You can not do this!");
-    }
-  }
-  //args
-  if (command.args && !args.length) {
-    let reply = `You didn't provide any arguments, ${message.author}!`;
+	if (!command) return;
 
-    if (command.usage) {
-      reply += `\nThe proper usage would be: \`${config.prefix}${command.name} ${command.usage}\``;
-    }
+	if (command.guildOnly && message.channel.type === 'dm') {
+		return message.reply('I can\'t execute that command inside DMs!');
+	}
 
-    return message.channel.send(reply);
-  }
-  //cooldown
-  const { cooldowns } = client;
+	if (command.permissions) {
+		const authorPerms = message.channel.permissionsFor(message.author);
+		if (!authorPerms || !authorPerms.has(command.permissions)) {
+			return message.reply('You can not do this!');
+		}
+	}
 
-  if (!cooldowns.has(command.name)) {
-    cooldowns.set(command.name, new Discord.Collection());
-  }
+	if (command.args && !args.length) {
+		let reply = `You didn't provide any arguments, ${message.author}!`;
 
-  const now = Date.now();
-  const timestamps = cooldowns.get(command.name);
-  const cooldownAmount = (command.cooldown || 3) * 1000;
+		if (command.usage) {
+			reply += `\nThe proper usage would be: \`${config.prefix}${command.name} ${command.usage}\``;
+		}
 
-  if (timestamps.has(message.author.id)) {
-    const expirationTime = timestamps.get(message.author.id) + cooldownAmount;
+		return message.channel.send(reply);
+	}
 
-    if (now < expirationTime) {
-      const timeLeft = (expirationTime - now) / 1000;
-      return message.reply(
-        `please wait ${timeLeft.toFixed(
-          1
-        )} more second(s) before reusing the \`${command.name}\` command.`
-      );
-    }
-  }
+	const { cooldowns } = client;
 
-  timestamps.set(message.author.id, now);
-  setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
+	if (!cooldowns.has(command.name)) {
+		cooldowns.set(command.name, new Discord.Collection());
+	}
 
-  // execute
-  try {
-    command.execute(client, message, args);
-  } catch (error) {
-    console.error(error);
-    message.reply("there was an error trying to execute that command!");
-  }
+	const now = Date.now();
+	const timestamps = cooldowns.get(command.name);
+	const cooldownAmount = (command.cooldown || 3) * 1000;
+
+	if (timestamps.has(message.author.id)) {
+		const expirationTime = timestamps.get(message.author.id) + cooldownAmount;
+
+		if (now < expirationTime) {
+			const timeLeft = (expirationTime - now) / 1000;
+			return message.reply(`please wait ${timeLeft.toFixed(1)} more second(s) before reusing the \`${command.name}\` command.`);
+		}
+	}
+
+	timestamps.set(message.author.id, now);
+	setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
+
+	try {
+		command.execute(client, message, args);
+	} catch (error) {
+		console.error(error);
+		message.reply('there was an error trying to execute that command!');
+	}
 });
 //event handler
-
 const eventFiles = fs
   .readdirSync("./events")
   .filter((file) => file.endsWith(".js"));
