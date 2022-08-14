@@ -3,8 +3,8 @@ const config = require("../../config.json");
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 module.exports = {
-  name: "remove-money",
-  aliases: [""],
+  name: "money-remove",
+  aliases: ["mremove"],
   description: "remove money",
   args: true,
   usage: "<user> <amount>",
@@ -23,11 +23,12 @@ module.exports = {
     else if (amount < 0) return;
 
 
-    const money = db.table("money");
-    let balance = await money.get(user);
-    if (amount>balance)return message.channel.send("amount is more than the balance");
+    const money = db.table("moneydb");
+    let beforebalance = await money.get(user);
+    if (amount>beforebalance)return message.channel.send("amount is more than the balance");
     amount = amount*(-1)
     await money.add(user, amount);
+    let balance = await money.get(user);
     const embed = new Discord.MessageEmbed()
       .setColor(config.color.main)
       .setTitle(`remove money`)

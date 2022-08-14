@@ -3,8 +3,8 @@ const config = require("../../config.json");
 const { QuickDB } = require("quick.db");
 const db = new QuickDB();
 module.exports = {
-  name: "add-money",
-  aliases: [""],
+  name: "money-add",
+  aliases: ["madd"],
   description: "add money",
   args: true,
   usage: "<user> <amount>",
@@ -13,9 +13,9 @@ module.exports = {
   cooldown: 5,
   execute: async (client, message, args) => {
     var user = args[0];
-    if (!user) return message.channel.send("Can't seem to find this user.");
     if (user.startsWith("<@") && user.endsWith(">")) user = user.slice(2, -1);
     if (!(user.length == 18)) return message.channel.send("invalid user");
+    if (!client.users.cache.get(user)) return message.channel.send("Can't seem to find this user.");
     if (!args[0]) return message.channel.send("Please specify a user");
     let amount = Number(args[1]);
     var x;
@@ -23,7 +23,7 @@ module.exports = {
     else if (amount > 0) x = "+";
     else if (amount < 0)return;
 
-    const money = db.table("money");
+    const money = db.table("moneydb");
     await money.add(user, amount);
     let balance = await money.get(user);
 

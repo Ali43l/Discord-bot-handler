@@ -20,24 +20,7 @@ for (const folder of commandFolders) {
 }
 
 client.once("ready", () => {
-  let y = 0;
-  let x = 0;
-  setInterval(function () {
-    // let Status = [`idle`, `dnd`, `online`, ``];
-    // let Statuslength = Status.length - 1;
-    // let botStatus = Status[x];
-    // client.user.setStatus(botStatus);
-    // if (x < Statuslength) x++;
-    // else if (x == Statuslength) x = 0;
-    // console.log(botStatus, x, Statuslength);
-    let Activity = [`DarkMoon`, `dsc.gg/1dk`];
-    let Activitylength = Activity.length - 1;
-    let botActivity = Activity[y];
-    client.user.setActivity(botActivity, { type: "WATCHING" });
-    if (y < Activitylength) y++;
-    else if (y == Activitylength) y = 0;
-  }, 7000);
-  console.log(`bot started`);
+
 });
 
 client.on("message", (message) => {
