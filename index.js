@@ -2,6 +2,8 @@ require("dotenv").config();
 const fs = require("fs");
 const Discord = require("discord.js");
 const config = require("./config.json");
+//radio
+const ytdl = require('ytdl-core');
 //
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
@@ -18,10 +20,6 @@ for (const folder of commandFolders) {
     client.commands.set(command.name, command);
   }
 }
-
-client.once("ready", () => {
-
-});
 
 client.on("message", (message) => {
   if (!message.content.startsWith(config.prefix) || message.author.bot) return;
@@ -108,6 +106,7 @@ for (const file of eventFiles) {
     client.on(event.name, (...args) => event.execute(...args, client));
   }
 }
+//
 
 //Login
 client.login(process.env.BOT_TOKEN);
